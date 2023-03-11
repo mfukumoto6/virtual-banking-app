@@ -1,3 +1,15 @@
-.vh-100 {
-  height: 100vh !important;
+.bg-green-blue {
+  background-color: #4ba3a1;
+}
+
+.bg-orient {
+  background-color: #1e4e6d;
+}
+
+.hover {
+  cursor: pointer;
+}
+
+.hover:hover {
+  opacity: 0.9;
 }
