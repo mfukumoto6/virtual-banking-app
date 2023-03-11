@@ -13,3 +13,9 @@
 .hover:hover {
   opacity: 0.9;
 }
+
+.money-box {
+  border: double 5px white;
+  background: #1a4567;
+  color: white;
+}
