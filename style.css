@@ -1,8 +1,17 @@
 body {
+  font-family: Futura !important;
   letter-spacing: 0.02em !important;
 }
 
-.bg-green-blue {
+p {
+  margin: 0 !important;
+}
+
+.font-size {
+  font-size: 1.5rem;
+}
+
+.bg-green {
   background-color: #4ba3a1;
 }
 
