@@ -1,3 +1,7 @@
+body {
+  letter-spacing: 0.02em !important;
+}
+
 .bg-green-blue {
   background-color: #4ba3a1;
 }
@@ -16,6 +20,13 @@
 
 .money-box {
   border: double 5px white;
+  background: #1a4567;
+  color: white;
+}
+
+.calculation-box {
+  padding: 0.5em 10px;
+  border: solid 2px white;
   background: #1a4567;
   color: white;
 }
