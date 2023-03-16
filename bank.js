@@ -133,14 +133,30 @@ function mainBankPage(bankAccount) {
   </div>
   `;
 
+  // menuCon.querySelectorAll('#withdrawBtn')[0].addEventListener('click', function () {
+  //   withdrawController(bankAccount);
+  // });
+  // menuCon.querySelectorAll('#depositBtn')[0].addEventListener('click', function () {
+  //   alert('deposit');
+  // });
+  // menuCon.querySelectorAll('#comeBackLaterBtn')[0].addEventListener('click', function () {
+  //   alert('come back later');
+  // });
+
+  // clickの中の関数を書き換え
   menuCon.querySelectorAll('#withdrawBtn')[0].addEventListener('click', function () {
-    withdrawController(bankAccount);
+    sideBankSwitch();
+    config.sidePage.append(withdrawPage(bankAccount));
   });
+
   menuCon.querySelectorAll('#depositBtn')[0].addEventListener('click', function () {
-    alert('deposit');
+    sideBankSwitch();
+    console.log('testing1');
   });
+
   menuCon.querySelectorAll('#comeBackLaterBtn')[0].addEventListener('click', function () {
-    alert('come back later');
+    sideBankSwitch();
+    console.log('testing2');
   });
 
   let container = document.createElement('div');
@@ -228,16 +244,28 @@ function backNextBtn(backString, nextString) {
 }
 
 // withdrawボタンがクリックされた時に、bankPageを非表示にし、sidePageを表示する関数
-function withdrawController(bankAccount) {
+// function withdrawController(bankAccount) {
+//   displayNone(config.bankPage);
+//   displayBlock(config.sidePage);
+
+// 新しい情報をレンダリングするため、一度両方のページを空にする
+//   config.bankPage.innerHTML = '';
+//   config.sidePage.innerHTML = '';
+
+// withdrawのページをsidePageにappend
+//   config.sidePage.append(withdrawPage(bankAccount));
+// }
+
+// withdrawページを表示する上ののwithdrawController関数をsideBankSwitch関数として書き換える (DRYを避けるため)
+// menuを押す ---> 各ページに飛ぶ すべて同じ処理
+// この関数はdepositページ、come back laterページを表示する時にも使う
+function sideBankSwitch() {
   displayNone(config.bankPage);
   displayBlock(config.sidePage);
 
   // 新しい情報をレンダリングするため、一度両方のページを空にする
   config.bankPage.innerHTML = '';
   config.sidePage.innerHTML = '';
-
-  // withdrawのページをsidePageにappend
-  config.sidePage.append(withdrawPage(bankAccount));
 }
 
 // billInputSelector関数と、backNextBtn関数を使い page3を作成する関数
