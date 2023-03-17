@@ -51,6 +51,11 @@ class BankAccount {
     this.money -= this.calculateWithdrawAmount(amount);
     return this.calculateWithdrawAmount(amount);
   }
+
+  deposit(amount) {
+    this.money += amount;
+    return amount;
+  }
 }
 
 // アカウント番号にランダムな整数
@@ -88,7 +93,7 @@ function mainBankPage(bankAccount) {
   infoCon.classList.add('text-end', 'mb-4', 'px-4');
 
   let nameP = document.createElement('p');
-  nameP.classList.add('font-size', 'm-3', 'p-1');
+  nameP.classList.add('m-3', 'p-1');
 
   // namePと全く同じクラスを持っているのでコピー
   let bankIdP = nameP.cloneNode(true);
@@ -105,8 +110,8 @@ function mainBankPage(bankAccount) {
   balanceCon.classList.add('px-3');
   balanceCon.innerHTML = `
   <div class="d-flex justify-content-center bg-danger col-12 py-1 py-md-2">
-    <p class="col-6 text-start font-size px-4">Available Balance</p>
-    <p class="col-6 text-end font-size px-4">$${bankAccount.money}</p>
+    <p class="col-6 text-start  px-4">Available Balance</p>
+    <p class="col-6 text-end  px-4">$${bankAccount.money}</p>
   </div>
   `;
 
@@ -115,35 +120,24 @@ function mainBankPage(bankAccount) {
   menuCon.innerHTML = `
   <div class="col-lg-4 col-12 py-1 py-md-3 px-md-1">
     <div id="withdrawBtn" class="bg-blue hover p-4">
-      <p class="font-size mb-3">WITHDRAWAL</p>
+      <p class=" mb-3">WITHDRAWAL</p>
       <i class="fas fa-wallet fa-3x"></i>
     </div>
   </div>
   <div class="col-lg-4 col-12 py-1 py-md-3 px-md-1">
     <div id="depositBtn" class="bg-blue hover p-4">
-      <p class="font-size mb-3">DEPOSIT</p>
+      <p class=" mb-3">DEPOSIT</p>
       <i class="fas fa-coins fa-3x"></i>
     </div>
   </div>
   <div class="col-lg-4 col-12 py-1 py-md-3 px-md-1">
     <div id="comeBackLaterBtn" class="bg-blue hover p-4">
-      <p class="font-size mb-3">COME BACK LATER</p>
+      <p class=" mb-3">COME BACK LATER</p>
       <i class="fas fa-home fa-3x"></i>
     </div>
   </div>
   `;
 
-  // menuCon.querySelectorAll('#withdrawBtn')[0].addEventListener('click', function () {
-  //   withdrawController(bankAccount);
-  // });
-  // menuCon.querySelectorAll('#depositBtn')[0].addEventListener('click', function () {
-  //   alert('deposit');
-  // });
-  // menuCon.querySelectorAll('#comeBackLaterBtn')[0].addEventListener('click', function () {
-  //   alert('come back later');
-  // });
-
-  // clickの中の関数を書き換え
   menuCon.querySelectorAll('#withdrawBtn')[0].addEventListener('click', function () {
     sideBankSwitch();
     config.sidePage.append(withdrawPage(bankAccount));
@@ -151,12 +145,12 @@ function mainBankPage(bankAccount) {
 
   menuCon.querySelectorAll('#depositBtn')[0].addEventListener('click', function () {
     sideBankSwitch();
-    console.log('testing1');
+    config.sidePage.append(depositPage(bankAccount));
   });
 
   menuCon.querySelectorAll('#comeBackLaterBtn')[0].addEventListener('click', function () {
     sideBankSwitch();
-    console.log('testing2');
+    config.sidePage.append(comeBackLaterPage(bankAccount));
   });
 
   let container = document.createElement('div');
@@ -221,7 +215,7 @@ function billInputSelector(title) {
     </div>
 
     <div class="money-box text-center p-3">
-        <p class="font-size" id="withdrawTotal">$0.00</p>
+        <p class="" id="totalBillAmount">$0.00</p>
     </div>
   `;
   return container;
@@ -268,6 +262,13 @@ function sideBankSwitch() {
   config.sidePage.innerHTML = '';
 }
 
+// sidePage を消して bankPage を表示する関数
+function bankReturn(bankAccount) {
+  displayNone(config.sidePage);
+  displayBlock(config.bankPage);
+  config.bankPage.append(mainBankPage(bankAccount));
+}
+
 // billInputSelector関数と、backNextBtn関数を使い page3を作成する関数
 function withdrawPage(bankAccount) {
   let container = document.createElement('div');
@@ -280,21 +281,18 @@ function withdrawPage(bankAccount) {
   withdrawContainer.append(backNextBtn('Go back', 'Next'));
 
   let backBtn = withdrawContainer.querySelectorAll('.back-btn').item(0);
-
   backBtn.addEventListener('click', function () {
-    displayNone(config.sidePage);
-    displayBlock(config.bankPage);
-    config.bankPage.append(mainBankPage(bankAccount));
+    bankReturn(bankAccount);
   });
 
   // inputタグを取得
   let billInputs = withdrawContainer.querySelectorAll('.bill-input');
 
-  // 各inputに値が入力される度に、金額と掛け合わされた総額が totalのboxに表示
   for (let i = 0; i < billInputs.length; i++) {
+    // 各inputに値が入力される度に、金額と掛け合わされた総額が totalのboxに表示
     billInputs[i].addEventListener('change', function (event) {
       // totalの場所に入力された合計金額を表示
-      document.getElementById('withdrawTotal').innerHTML = billSummation(billInputs, 'data-bill').toString();
+      document.getElementById('totalBillAmount').innerHTML = billSummation(billInputs, 'data-bill').toString();
     });
   }
 
@@ -310,10 +308,11 @@ function withdrawPage(bankAccount) {
 
     // HTMLを追加し、金額のところに引き落とすことができる金額を表示
     let total = billSummation(billInputs, 'data-bill');
+
     confirmDialog.innerHTML += `
     <div class="d-flex justify-content-center bg-danger text-white py-1 py-md-2">
-      <p class="col-6 text-start font-size px-4">Total to be withdrawn: </p>
-      <p class="col-6 text-end font-size px-4">$${bankAccount.calculateWithdrawAmount(total)}</p>
+      <p class="col-6 text-start  px-4">Total to be withdrawn: </p>
+      <p class="col-6 text-end  px-4">$${bankAccount.calculateWithdrawAmount(total)}</p>
     </div>
     `;
 
@@ -333,9 +332,7 @@ function withdrawPage(bankAccount) {
     confirmNextBtn.addEventListener('click', function () {
       // 残高のアップデート
       bankAccount.withdraw(total);
-      displayNone(config.sidePage);
-      displayBlock(config.bankPage);
-      config.bankPage.append(mainBankPage(bankAccount));
+      bankReturn(bankAccount);
     });
   });
 
@@ -369,7 +366,7 @@ function billDialog(title, inputElementNodeList, multiplierAttribute) {
     // 入力された値が0より大きい時、表示
     if (value > 0) {
       let bill = '$' + inputElementNodeList[i].getAttribute(multiplierAttribute);
-      billElements += `<p class="font-size calculation-box mb-1 pr-2">${value} × ${bill}</p>`;
+      billElements += `<p class=" calculation-box mb-1 pr-2">${value} × ${bill}</p>`;
     }
   }
 
@@ -380,11 +377,100 @@ function billDialog(title, inputElementNodeList, multiplierAttribute) {
   container.innerHTML = `
   <h2 class="text-center fw-bold pb-3">${title}</h2>
   <div class="d-flex justify-content-center">
-  <div class="calculation-box text-end font-size col-8 px-1">
+  <div class="calculation-box text-end  col-8 px-1">
       ${billElements}
       ${totalString}
     </div>
   </div>
   `;
+  return container;
+}
+
+// withdrawPage(page4) と同じ構造の depositPage(Page5) を作成する関数
+function depositPage(bankAccount) {
+  let container = document.createElement('div');
+  container.classList.add('p-4');
+
+  let depositContainer = document.createElement('div');
+  container.append(depositContainer);
+
+  depositContainer.append(billInputSelector('Please Enter The Deposit Amount'));
+  depositContainer.append(backNextBtn('Go back', 'Next'));
+
+  let backBtn = depositContainer.querySelectorAll('.back-btn').item(0);
+  backBtn.addEventListener('click', function () {
+    bankReturn(bankAccount);
+  });
+
+  // inputタグを取得
+  let billInputs = depositContainer.querySelectorAll('.bill-input');
+
+  for (let i = 0; i < billInputs.length; i++) {
+    // 各inputに値が入力される度に、金額と掛け合わされた総額が totalのboxに表示
+    billInputs[i].addEventListener('change', function (event) {
+      document.getElementById('totalBillAmount').innerHTML = billSummation(billInputs, 'data-bill').toString();
+    });
+  }
+
+  // nextを押した時に 次のページに page4 を表示
+  let nextBtn = depositContainer.querySelectorAll('.next-btn').item(0);
+  nextBtn.addEventListener('click', function () {
+    container.innerHTML = '';
+
+    let confirmDialog = document.createElement('div');
+    confirmDialog.append(billDialog('The money you are going to deposit is ...', billInputs, 'data-bill'));
+    container.append(confirmDialog);
+
+    let total = billSummation(billInputs, 'data-bill');
+    confirmDialog.innerHTML += `
+    <div class="d-flex justify-content-center bg-danger text-white py-1 py-md-2">
+     <p class="col-6 text-start  px-4">Total to be withdrawn: </p>
+     <p class="col-6 text-end  px-4">$${total}</p>
+    </div>
+    `;
+    let depositConfirmBtns = backNextBtn('Go back', 'Confirm');
+    confirmDialog.append(depositConfirmBtns);
+
+    let confirmBackBtn = depositConfirmBtns.querySelectorAll('.back-btn').item(0);
+    let confirmNextBtn = depositConfirmBtns.querySelectorAll('.next-btn').item(0);
+
+    confirmBackBtn.addEventListener('click', function () {
+      container.innerHTML = '';
+      container.append(depositContainer);
+    });
+
+    confirmNextBtn.addEventListener('click', function () {
+      bankAccount.deposit(total);
+      bankReturn(bankAccount);
+    });
+  });
+
+  return container;
+}
+
+// come back laterページ (page6) を作成する、comeBackLaterPage関数
+function comeBackLaterPage(bankAccount) {
+  let container = document.createElement('div');
+  container.classList.add('p-4');
+
+  container.innerHTML = `
+  <div class="text-center col-12 ">
+    <h2 class="text-center fw-bold pb-3">How many days will you be gone?</h2>
+
+    <div class="form-group">
+      <input type="text" class="form-control p-3" placeholder="4" />
+    </div>
+  </div>
+  `;
+
+  container.append(backNextBtn('Go back', 'Confirm'));
+
+  let backBtn = container.querySelectorAll('.back-btn')[0];
+  let nextBtn = container.querySelectorAll('.next-btn')[0];
+
+  backBtn.addEventListener('click', function () {
+    bankReturn(bankAccount);
+  });
+
   return container;
 }
