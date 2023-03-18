@@ -23,6 +23,7 @@ const config = {
 // 個々のユーザーをオブジェクトとして管理するためのクラス
 class BankAccount {
   maxWithdrawPercent = 0.2;
+  annualInterestRate = 0.08;
 
   constructor(firstName, lastName, email, type, accountNumber, money) {
     this.firstName = firstName;
@@ -55,6 +56,17 @@ class BankAccount {
   deposit(amount) {
     this.money += amount;
     return amount;
+  }
+
+  // 日にちを受け取って利子を計算するメソッド money * (1 + i) ^ (days/365)
+  // 今回はday1から複利が適用されるとする
+  // (日にちが浅い場合は単利、日にちが経過した場合は複利のような計算もありますが、今回は全ての計算を複利とする)
+  simulateTimePassage(days) {
+    let daysPerYear = 365;
+    let profit = this.money * Math.pow(1 + this.annualInterestRate, days / daysPerYear) - this.money;
+    // 残高に反映
+    this.money += profit;
+    return profit;
   }
 }
 
@@ -93,7 +105,7 @@ function mainBankPage(bankAccount) {
   infoCon.classList.add('text-end', 'mb-4', 'px-4');
 
   let nameP = document.createElement('p');
-  nameP.classList.add('m-3', 'p-1');
+  nameP.classList.add('text-dark', 'm-3', 'p-1');
 
   // namePと全く同じクラスを持っているのでコピー
   let bankIdP = nameP.cloneNode(true);
@@ -101,7 +113,7 @@ function mainBankPage(bankAccount) {
 
   // オブジェクトの挿入
   nameP.innerHTML = bankAccount.getFullName();
-  bankIdP.innerHTML = bankAccount.accountNumber;
+  bankIdP.innerHTML = `Bank ID: ${bankAccount.accountNumber}`;
   initialDepositP.innerHTML = `$${bankAccount.initialDeposit}`;
 
   infoCon.append(nameP, bankIdP, initialDepositP);
@@ -109,7 +121,7 @@ function mainBankPage(bankAccount) {
   let balanceCon = document.createElement('div');
   balanceCon.classList.add('px-3');
   balanceCon.innerHTML = `
-  <div class="d-flex justify-content-center bg-danger col-12 py-1 py-md-2">
+  <div class="d-flex justify-content-center  btnx-cyan col-12 py-1 py-md-2">
     <p class="col-6 text-start  px-4">Available Balance</p>
     <p class="col-6 text-end  px-4">$${bankAccount.money}</p>
   </div>
@@ -119,19 +131,19 @@ function mainBankPage(bankAccount) {
   menuCon.classList.add('d-flex', 'justify-content-center', 'flex-wrap', 'text-center', 'py-1', 'px-3');
   menuCon.innerHTML = `
   <div class="col-lg-4 col-12 py-1 py-md-3 px-md-1">
-    <div id="withdrawBtn" class="bg-blue hover p-4">
+    <div id="withdrawBtn" class="bg-blue  rounded hover p-4">
       <p class=" mb-3">WITHDRAWAL</p>
       <i class="fas fa-wallet fa-3x"></i>
     </div>
   </div>
   <div class="col-lg-4 col-12 py-1 py-md-3 px-md-1">
-    <div id="depositBtn" class="bg-blue hover p-4">
+    <div id="depositBtn" class="bg-blue rounded  hover p-4">
       <p class=" mb-3">DEPOSIT</p>
       <i class="fas fa-coins fa-3x"></i>
     </div>
   </div>
   <div class="col-lg-4 col-12 py-1 py-md-3 px-md-1">
-    <div id="comeBackLaterBtn" class="bg-blue hover p-4">
+    <div id="comeBackLaterBtn" class="bg-blue rounded  hover p-4">
       <p class=" mb-3">COME BACK LATER</p>
       <i class="fas fa-home fa-3x"></i>
     </div>
@@ -215,7 +227,7 @@ function billInputSelector(title) {
     </div>
 
     <div class="money-box text-center p-3">
-        <p class="" id="totalBillAmount">$0.00</p>
+        <p class="text-light" id="totalBillAmount">$0.00</p>
     </div>
   `;
   return container;
@@ -292,7 +304,7 @@ function withdrawPage(bankAccount) {
     // 各inputに値が入力される度に、金額と掛け合わされた総額が totalのboxに表示
     billInputs[i].addEventListener('change', function (event) {
       // totalの場所に入力された合計金額を表示
-      document.getElementById('totalBillAmount').innerHTML = billSummation(billInputs, 'data-bill').toString();
+      document.getElementById('totalBillAmount').innerHTML = `$` + billSummation(billInputs, 'data-bill').toString();
     });
   }
 
@@ -310,7 +322,7 @@ function withdrawPage(bankAccount) {
     let total = billSummation(billInputs, 'data-bill');
 
     confirmDialog.innerHTML += `
-    <div class="d-flex justify-content-center bg-danger text-white py-1 py-md-2">
+    <div class="d-flex justify-content-center btnx-cyan text-white py-1 py-md-2">
       <p class="col-6 text-start  px-4">Total to be withdrawn: </p>
       <p class="col-6 text-end  px-4">$${bankAccount.calculateWithdrawAmount(total)}</p>
     </div>
@@ -319,16 +331,15 @@ function withdrawPage(bankAccount) {
     let withdrawConfirmBtns = backNextBtn('Go back', 'Confirm');
     confirmDialog.append(withdrawConfirmBtns);
 
-    // Go Backボタンがクリックされたら、前のページに戻ります。
-    // Confirmボタンがクリックされると、ダッシュボードに戻ります。ただ残高から引き落とした金額を引きます。
+    // Go Backボタンがクリックされたら、前のページに戻る
+    // Confirmボタンがクリックされると、ダッシュボードに戻る 残高から引き落とした金額を引く
     let confirmBackBtn = withdrawConfirmBtns.querySelectorAll('.back-btn')[0];
-    let confirmNextBtn = withdrawConfirmBtns.querySelectorAll('.next-btn')[0];
-
     confirmBackBtn.addEventListener('click', function () {
       container.innerHTML = '';
       container.append(withdrawContainer);
     });
 
+    let confirmNextBtn = withdrawConfirmBtns.querySelectorAll('.next-btn')[0];
     confirmNextBtn.addEventListener('click', function () {
       // 残高のアップデート
       bankAccount.withdraw(total);
@@ -408,7 +419,7 @@ function depositPage(bankAccount) {
   for (let i = 0; i < billInputs.length; i++) {
     // 各inputに値が入力される度に、金額と掛け合わされた総額が totalのboxに表示
     billInputs[i].addEventListener('change', function (event) {
-      document.getElementById('totalBillAmount').innerHTML = billSummation(billInputs, 'data-bill').toString();
+      document.getElementById('totalBillAmount').innerHTML = `$` + billSummation(billInputs, 'data-bill').toString();
     });
   }
 
@@ -423,7 +434,7 @@ function depositPage(bankAccount) {
 
     let total = billSummation(billInputs, 'data-bill');
     confirmDialog.innerHTML += `
-    <div class="d-flex justify-content-center bg-danger text-white py-1 py-md-2">
+    <div class="d-flex justify-content-center btnx-cyan text-white py-1 py-md-2">
      <p class="col-6 text-start  px-4">Total to be withdrawn: </p>
      <p class="col-6 text-end  px-4">$${total}</p>
     </div>
@@ -432,13 +443,12 @@ function depositPage(bankAccount) {
     confirmDialog.append(depositConfirmBtns);
 
     let confirmBackBtn = depositConfirmBtns.querySelectorAll('.back-btn').item(0);
-    let confirmNextBtn = depositConfirmBtns.querySelectorAll('.next-btn').item(0);
-
     confirmBackBtn.addEventListener('click', function () {
       container.innerHTML = '';
       container.append(depositContainer);
     });
 
+    let confirmNextBtn = depositConfirmBtns.querySelectorAll('.next-btn').item(0);
     confirmNextBtn.addEventListener('click', function () {
       bankAccount.deposit(total);
       bankReturn(bankAccount);
@@ -458,7 +468,7 @@ function comeBackLaterPage(bankAccount) {
     <h2 class="text-center fw-bold pb-3">How many days will you be gone?</h2>
 
     <div class="form-group">
-      <input type="text" class="form-control p-3" placeholder="4" />
+      <input type="text" class="form-control p-3" id="days-gone" placeholder="4" />
     </div>
   </div>
   `;
@@ -466,9 +476,19 @@ function comeBackLaterPage(bankAccount) {
   container.append(backNextBtn('Go back', 'Confirm'));
 
   let backBtn = container.querySelectorAll('.back-btn')[0];
-  let nextBtn = container.querySelectorAll('.next-btn')[0];
-
   backBtn.addEventListener('click', function () {
+    bankReturn(bankAccount);
+  });
+
+  // Confirmボタンがクリックされた時、入力されている値を元に利子を計算し、残高に反映
+  // 例えば、年利8%で365日(1年間)このページに帰ってこないと仮定すると、残高は money * (1 + 0.08)になる
+  // このシミュレーションを残高に反映させます。
+  let nextBtn = container.querySelectorAll('.next-btn')[0];
+  nextBtn.addEventListener('click', function () {
+    let daysGoneInput = container.querySelectorAll('#days-gone')[0];
+    let totalDaysGone = parseInt(daysGoneInput.value);
+    totalDaysGone = totalDaysGone > 0 ? totalDaysGone : 0;
+    bankAccount.simulateTimePassage(totalDaysGone);
     bankReturn(bankAccount);
   });
 

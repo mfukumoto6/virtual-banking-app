@@ -1,5 +1,5 @@
 body {
-  font-family: Futura !important;
+  font-family: Questrial, Futura !important;
   letter-spacing: 0.02em !important;
 }
 
@@ -20,12 +20,17 @@ button.btn {
   font-size: 1.25rem;
 }
 
-.bg-green {
-  background-color: #4ba3a1;
+.bg-grey {
+  background-color: #343a40;
 }
 
 .bg-blue {
-  background-color: #1e4e6d;
+  background-color: #194567;
+}
+
+.btnx-cyan {
+  background: var(--bs-cyan);
+  border: 2px solid var(--bs-cyan);
 }
 
 .hover {
@@ -38,13 +43,12 @@ button.btn {
 
 .money-box {
   border: double 5px white;
-  background: #1a4567;
-  color: white;
+  background: #194567;
 }
 
 .calculation-box {
   padding: 0.5em 10px;
   border: solid 2px white;
-  background: #1a4567;
+  background: #194567;
   color: white;
 }
