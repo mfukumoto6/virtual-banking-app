@@ -1,1 +1,1 @@
-# virtual-banking-app
+# virtual banking app
